@@ -1,0 +1,38 @@
+PROOF 1:
+
+Rt = region- Territories
+Tn = Jackets Pack Size- None (No jackets shipped)
+Ts = Jackets Pack Size- Small
+Tm = Jackets Pack Size- Medium
+Tl = Jackets Pack Size- Large
+Ssu = Season- Summer
+Ssp = Season- Spring
+
+We have conditions that the territories would have jackets all year round, so it is not possible that no jackets are shipped.
+We also have a condition that we cannot have medium or large sized shipments of jackets in summer or spring.
+Also the shipment has to be empty(no shipment), small , medium or large.
+We then prove that in the summer or spring, any store in the territories would get a small shipment of jackets.
+
+PROOF 2:
+
+Swn = Swimwear Pack Size- None (No swimwear shipped)
+Sws = Swimwear Pack Size- Small
+Swm = Swimwear Pack Size- Medium
+Swl = Swimwear Pack Size- Large
+
+P500 = Population >= 500K
+P100 = 100K <= Population < 500K
+P50 = 50K <= Population < 100K
+P20 = 20K <= Population < 50K
+P0 = 0 < Population < 20K
+
+Ra = region- Atlantic
+Rw = region- west coast(Pacific)
+Ssu = Season- Summer
+Ssp = Season- Spring
+
+The shipment has to be empty(no shipment), small , medium or large.
+The population has to fit in one of the ranges.
+A store will get a large pack of swimwear if and only if it has a population greater than 100K.
+Any store in the atlantic or pacific region in the summer or spring would get a large or medium shipment.
+We prove that in the summer or spring in the coastal regions, any store not serving a population greater than 100K would get a medium pack of swimwear.
