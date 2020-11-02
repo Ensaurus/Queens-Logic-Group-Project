@@ -52,68 +52,6 @@ S_spring = Var('S_spring')
 S_winter = Var('S_winter')
 S_autumn = Var('S_autumn')
 
-inshirts100 = Var('var_inshirts100')
-inshirts80 = Var('var_inshirts80')
-inshirts60 = Var('var_inshirts60')
-inshirts40 = Var('var_inshirts40')
-inshirts20 = Var('var_inshirts20')
-inshirts0 = Var('var_inshirts0')
-
-if generalConditions.season == 'summer':
-    S_summer = True
-    S_spring = False
-    S_winter = False
-    S_autumn = False
-if generalConditions.INshirts == 100:
-    inshirts100 = True
-    inshirts80 = True
-    inshirts60 = True
-    inshirts40 = True
-    inshirts20 = True
-    inshirts0 = True
-if generalConditions.INswim == 100:
-    inswim100 = True
-    inswim80 = True
-    inswim60 = True
-    inswim40 = True
-    inswim20 = True
-    inswim0 = True
-if generalConditions.INpants == 100:
-    inpants100 = True
-    inpants80 = True
-    inpants60 = True
-    inpants40 = True
-    inpants20 = True
-    inpants0 = True
-if generalConditions.INjackets == 100:
-    injackets100 = True
-    injackets80 = True
-    injackets60 = True
-    injackets40 = True
-    injackets20 = True
-    injackets0 = True
-if generalConditions.INboots == 100:
-    inboots100 = True
-    inboots80 = True
-    inboots60 = True
-    inboots40 = True
-    inboots20 = True
-    inboots0 = True
-
-#Setup store values
-#population = 500k, 100k, 50k, 20k, 0k
-#urban = urban, rural
-#region = atlantic, pacific, prairies, central, territory
-#bestseller = shirts, swimwear, pants, jackets, boots
-#regions = atlantic or territory or central
-#bestseller values = shirts or swimwear
-storeOb = []
-storeOb.append(store('500k', 'urban', 'central', 'swimwear'))
-storeOb.append(store('20k', 'rural', 'atlantic', 'shirts'))
-storeOb.append(store('100k', 'urban', 'atlantic', 'swimwear'))
-storeOb.append(store('100k', 'urban', 'central', 'shirts'))
-storeOb.append(store('0k', 'rural', 'territory', 'shirts'))
-
 population500 = {}
 population100 = {}
 population50 = {}
@@ -139,83 +77,36 @@ for i in range(5):
     bestsellerSwimwear[i] = Var("bestsellerSwimwear%d", i)
 
 
-def storeAssign():
-    for i in range(5):
-        if storeOb[i].population == '500k':
-            population500[i] = True
-            population100[i] = True
-            population50[i] = True
-            population20[i] = True
-            population0[i] = True
-        elif storeOb[i].population == '100k':    
-            population500[i] = False
-            population100[i] = True
-            population50[i] = True
-            population20[i] = True
-            population0[i] = True
-        elif storeOb[i].population == '50k':    
-            population500[i] = False
-            population100[i] = False
-            population50[i] = True
-            population20[i] = True
-            population0[i] = True
-        elif storeOb[i].population == '20k':    
-            population500[i] = False
-            population100[i] = False
-            population50[i] = False
-            population20[i] = True
-            population0[i] = True
-        elif storeOb[i].population == '0k':    
-            population500[i] = False
-            population100[i] = False
-            population50[i] = False
-            population20[i] = False
-            population0[i] = True
-
-        if storeOb[i].urban == 'urban':
-            urbanVal[i] = True
-        else:
-            urbanVal[i] = False
-
-        if storeOb[i].region == 'atlantic':
-            regionAtlantic[i] = True
-            regionCentral[i] = False
-            regionTerritory[i] = False
-        elif storeOb[i].region == 'central':
-            regionAtlantic[i] = False
-            regionCentral[i] = True
-            regionTerritory[i] = False
-        elif storeOb[i].region == 'territory':
-            regionAtlantic[i] = False
-            regionCentral[i] = False
-            regionTerritory[i] = True
-
-        if storeOb[i].bestSeller == 'shirts':
-            bestsellerShirts[i] = True
-            bestsellerSwimwear[i] = False
-        elif storeOb[i].bestSeller == 'swimwear':
-            bestsellerShirts[i] = False
-            bestsellerSwimwear[i] = True
-            
-
-#run storeAssign
-storeAssign()
-
 #shipment sizes, array because its for 5 stores (0-4)
-shirtsN = []
-shirtsS = []
-shirtsM = []
-shirtsL = []
+shirtsN = {}
+shirtsS = {}
+shirtsM = {}
+shirtsL = {}
+for i in range(5):
+    shirtsN[i] = Var("shirtsN%d", i)
+    shirtsS[i] = Var("shirtsS%d", i)
+    shirtsM[i] = Var("shirtsM%d", i)
+    shirtsL[i] = Var("shirtsL%d", i)
 
-swimN = []
-swimS = []
-swimM = []
-swimL = []
-
-pantsN = []
-pantsS = []
-pantsM = []
-pantsL = []
+swimN = {}
+swimS = {}
+swimM = {}
+swimL = {}
+for i in range(5):
+    swimN[i] = Var("swimN%d", i)
+    swimS[i] = Var("swimS%d", i)
+    swimM[i] = Var("swimM%d", i)
+    swimL[i] = Var("swimL%d", i)
+    
+pantsN = {}
+pantsS = {}
+pantsM = {}
+pantsL = {}
+for i in range(5):
+    pantsN[i] = Var("pantsN%d", i)
+    pantsS[i] = Var("pantsS%d", i)
+    pantsM[i] = Var("pantsM%d", i)
+    pantsL[i] = Var("pantsL%d", i)
 
 jacketsN = {}
 jacketsS = {}
@@ -227,29 +118,118 @@ for i in range(5):
     jacketsM[i] = Var("jacketsM%d", i)
     jacketsL[i] = Var("jacketsL%d", i)
 
-bootsN = []
-bootsS = []
-bootsM = []
-bootsL = []
+bootsN = {}
+bootsS = {}
+bootsM = {}
+bootsL = {}
+for i in range(5):
+    bootsN[i] = Var("bootsN%d", i)
+    bootsS[i] = Var("bootsS%d", i)
+    bootsM[i] = Var("bootsM%d", i)
+    bootsL[i] = Var("bootsL%d", i)
+
+def invert(thing):
+    return ~thing
 
 def example_theory():
     E = Encoding()
 
+    #general setup
+    generalConditions = setup('autumn', 100, 100, 100, 100, 100)
+
+    #stores setup (5 stores)
+    storeOb = []
+    storeOb.append(store('500k', 'urban', 'central', 'swimwear'))
+    storeOb.append(store('20k', 'rural', 'atlantic', 'shirts'))
+    storeOb.append(store('100k', 'urban', 'atlantic', 'swimwear'))
+    storeOb.append(store('100k', 'urban', 'central', 'shirts'))
+    storeOb.append(store('0k', 'rural', 'territory', 'shirts'))
+
+    if(generalConditions.season == 'summer'):
+        E.add_constraint(S_summer)
+    elif(generalConditions.season == 'winter'):
+        E.add_constraint(S_winter)
+    elif(generalConditions.season == 'spring'):
+        E.add_constraint(S_spring)
+    elif(generalConditions.season == 'autumn'):
+        E.add_constraint(S_autumn)
+
+    for i in range(5):
+        #if(storeOb[i].region == 'central'):
+        #    E.add_constraint(regionCentral[i])
+        #if(storeOb[i].region == 'atlantic'):
+        #    E.add_constraint(regionAtlantic[i])
+        #if(storeOb[i].region == 'territory'):
+        #    E.add_constraint(regionTerritory[i])        
+        '''
+        if(storeOb[i].population == '500k'):
+            E.add_constraint(population500[i])
+        elif(storeOb[i].population == '100k'):
+            E.add_constraint(population100[i])    
+        elif(storeOb[i].population == '50k'):
+            E.add_constraint(population50[i])    
+        elif(storeOb[i].population == '20k'):
+            E.add_constraint(population20[i])    
+        elif(storeOb[i].population == '0k'):
+            E.add_constraint(population0[i])    
+        '''
+
+
+
+
     for i in range(5):
         #Only one size pack of items
-        #E.add_constraint(shirtsN[i] | shirtsS[i] | shirtsM[i] | shirtsL[i])
-        #E.add_constraint(swimN[i] | swimS[i] | swimM[i] | swimL[i])
-        #E.add_constraint(pantsN[i] | pantsS[i] | pantsM[i] | pantsL[i])
-        #E.add_constraint(jacketsN[i] | jacketsS[i] | jacketsM[i] | jacketsL[i])
-        #E.add_constraint(bootsN[i] | bootsS[i] | bootsM[i] | bootsL[i])
+        E.add_constraint(shirtsS[i] | shirtsM[i] | shirtsL[i])#always selling
+        E.add_constraint(swimN[i] | swimS[i] | swimM[i] | swimL[i])
+        E.add_constraint(pantsS[i] | pantsM[i] | pantsL[i])#always selling
+        E.add_constraint(jacketsN[i] | jacketsS[i] | jacketsM[i] | jacketsL[i])
+        E.add_constraint(bootsS[i] | bootsM[i] | bootsL[i])#always selling
+
+        #only one season
+        E.add_constraint(S_autumn | S_spring | S_summer | S_winter)
+
+        #only one population
+        E.add_constraint(population500[i] | population100[i] | population50[i] | population20[i] | population0[i])
+
+        #only one region
+        E.add_constraint(regionAtlantic[i] | regionCentral[i] | regionTerritory[i])
     
         #summer and not territories means jackets can't be sold
-        E.add_constraint(~(S_summer & regionTerritory[i]) | jacketsN[i])
+        E.add_constraint((S_summer & ~regionTerritory[i]).negate() | jacketsN[i])
 
         #for selling jackets in summer
         E.add_constraint(~regionTerritory[i] | ~jacketsN[i])
-        E.add_constraint(~S_summer | (~jacketsM[i] & ~jacketsL[i]))
+        E.add_constraint(~S_summer | (jacketsN[i] | jacketsS[i]))
 
+        #sell swimwear in appropriate season
+        E.add_constraint(~regionTerritory[i] | (swimN[i] | swimS[i])) #only small shipments
+        E.add_constraint((~S_summer & regionTerritory[i]).negate() | swimN[i]) #swimwear only in summers
+
+        #swimwear in other not territories
+        E.add_constraint((~regionTerritory[i] & S_summer).negate() | (~swimN[i] & ~swimS[i]))
+        
+        #no swimwear in winter
+        E.add_constraint(~S_winter | swimN[i])
+
+        #swimwear in spring
+        E.add_constraint(~S_spring | ~swimL[i])
+
+        #population >100k
+        E.add_constraint((population100[i] | population500[i]).negate() | (~shirtsS[i] & ~swimS[i] & ~pantsS[i] & ~jacketsS[i] & ~bootsS[i]))
+        
+        #population <20k range
+        E.add_constraint((population0[i] | population20[i]).negate() | (~shirtsL[i] & ~swimL[i] & ~pantsL[i] & ~jacketsL[i] & ~bootsL[i]))
+
+        #bestseller values = shirts or swimwear
+        #bestseller shirts
+        E.add_constraint((bestsellerShirts[i] & (population0[i] | population20[i])).negate() | shirtsM[i])
+        #large shipment shirts
+        E.add_constraint((bestsellerShirts[i] & (~population0[i] & ~population20[i])).negate() | shirtsL[i])
+
+        #bestseller swimwear
+        E.add_constraint((bestsellerSwimwear[i] & (population0[i] | population20[i])).negate() | swimM[i])
+        #large shipments swimwear
+        E.add_constraint((bestsellerSwimwear[i] & (~population0[i] & ~population20[i])).negate() | swimL[i])
 
     return E
 
@@ -257,6 +237,7 @@ def example_theory():
 if __name__ == "__main__":
 
     T = example_theory()
+
 
  
     print("\nSatisfiable: %s" % T.is_satisfiable())
