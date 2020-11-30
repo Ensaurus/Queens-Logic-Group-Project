@@ -5,16 +5,22 @@ from lib204 import Encoding
 
 from nnf import true
 
-"""
-000
-001
-010
-011 <- pre
-100 <- post
-101
-110
-111
-"""
+import varSetup.py
+
+
+#For using iff(F1,F2), >> for implication and ~ for negation.
+from nnf import NNF
+from nnf.operators import iff
+
+def implication(l, r):
+    return l.negate() | r
+
+def neg(f):
+    return f.negate()
+
+NNF.__rshift__ = implication
+NNF.__invert__ = neg
+
 #values that are common for all stores
 class setup(object):
     def __init__(self, season, INshirts, INswim, INpants, INjackets, INboots):
@@ -47,86 +53,23 @@ generalConditions = setup('summer', 100, 100, 100, 100, 100)
 
 #Only 1 season is true at a time
 #For inventory, if a number (say 100) is true, then all lower values (80, 60, 40, 20, 0) would be true as well
-S_summer = Var('S_summer')
-S_spring = Var('S_spring')
-S_winter = Var('S_winter')
-S_autumn = Var('S_autumn')
 
-population500 = {}
-population100 = {}
-population50 = {}
-population20 = {}
-population0 = {}
-urbanVal = {}
-regionAtlantic = {}
-regionCentral = {}
-regionTerritory = {}
-bestsellerShirts = {}
-bestsellerSwimwear = {}
-for i in range(5):
-    population500[i] = Var("population500%d", i)
-    population100[i] = Var("population100%d", i)
-    population50[i] = Var("population50%d", i)
-    population20[i] = Var("population20%d", i)
-    population0[i] = Var("population0%d", i)
-    urbanVal[i] = Var("urbanVal%d", i)
-    regionAtlantic[i] = Var("regionAtlantic%d", i)
-    regionCentral[i] = Var("regionCentral%d", i)
-    regionTerritory[i] = Var("regionTerritory%d", i)
-    bestsellerShirts[i] = Var("bestsellerShirts%d", i)
-    bestsellerSwimwear[i] = Var("bestsellerSwimwear%d", i)
+#Setup the variables
+varSetup.variableSetup()
 
+#Exclusive OR functions
+def exclusiveOr2(a, b):
+    return (a & ~b) | (~a & b)
 
-#shipment sizes, array because its for 5 stores (0-4)
-shirtsN = {}
-shirtsS = {}
-shirtsM = {}
-shirtsL = {}
-for i in range(5):
-    shirtsN[i] = Var("shirtsN%d", i)
-    shirtsS[i] = Var("shirtsS%d", i)
-    shirtsM[i] = Var("shirtsM%d", i)
-    shirtsL[i] = Var("shirtsL%d", i)
+def exclusiveOr3(a, b, c):
+    return (a & ~b & ~c) | (~a & b & ~c) | (~a & ~b & c)
 
-swimN = {}
-swimS = {}
-swimM = {}
-swimL = {}
-for i in range(5):
-    swimN[i] = Var("swimN%d", i)
-    swimS[i] = Var("swimS%d", i)
-    swimM[i] = Var("swimM%d", i)
-    swimL[i] = Var("swimL%d", i)
-    
-pantsN = {}
-pantsS = {}
-pantsM = {}
-pantsL = {}
-for i in range(5):
-    pantsN[i] = Var("pantsN%d", i)
-    pantsS[i] = Var("pantsS%d", i)
-    pantsM[i] = Var("pantsM%d", i)
-    pantsL[i] = Var("pantsL%d", i)
+def exclusiveOr4(a, b, c, d):
+    return (a & ~b & ~c & ~d) | (~a & b & ~c & ~d) | (~a & ~b & c & ~d) | (~a & ~b & ~c & d)
 
-jacketsN = {}
-jacketsS = {}
-jacketsM = {}
-jacketsL = {}
-for i in range(5):
-    jacketsN[i] = Var("jacketsN%d", i)
-    jacketsS[i] = Var("jacketsS%d", i)
-    jacketsM[i] = Var("jacketsM%d", i)
-    jacketsL[i] = Var("jacketsL%d", i)
+def exclusiveOr5(a, b, c, d, e):
+    return (a & ~b & ~c & ~d & ~e) | (~a & b & ~c & ~d & ~e) | (~a & ~b & c & ~d & ~e) | (~a & ~b & ~c & d & ~e) | (~a & ~b & ~c & ~d & e)
 
-bootsN = {}
-bootsS = {}
-bootsM = {}
-bootsL = {}
-for i in range(5):
-    bootsN[i] = Var("bootsN%d", i)
-    bootsS[i] = Var("bootsS%d", i)
-    bootsM[i] = Var("bootsM%d", i)
-    bootsL[i] = Var("bootsL%d", i)
 
 def invert(thing):
     return ~thing
@@ -180,23 +123,24 @@ def example_theory():
     for i in range(5):
 
         #only one population
-        E.add_constraint(population500[i] | population100[i] | population50[i] | population20[i] | population0[i])
+        E.add_constraint(exclusiveOr5(population500[i], population100[i], population50[i], population20[i], population0[i]))
 
         #only one region
-        E.add_constraint(regionAtlantic[i] | regionCentral[i] | regionTerritory[i])
+        E.add_constraint(exclusiveOr3(regionAtlantic[i], regionCentral[i], regionTerritory[i]))
 
+        #Don't Need this
         #only urban or rural
-        E.add_constraint(urbanVal[i] | ~urbanVal[i])
+        #E.add_constraint(urbanVal[i] | ~urbanVal[i])
 
         #only one season
-        E.add_constraint(S_autumn | S_spring | S_summer | S_winter)
+        E.add_constraint(exclusiveOr4(S_autumn, S_spring, S_summer, S_winter))
 
         #Only one size pack of items
-        E.add_constraint(shirtsS[i] | shirtsM[i] | shirtsL[i])#always selling
-        E.add_constraint(swimN[i] | swimS[i] | swimM[i] | swimL[i])
-        E.add_constraint(pantsS[i] | pantsM[i] | pantsL[i])#always selling
-        E.add_constraint(jacketsN[i] | jacketsS[i] | jacketsM[i] | jacketsL[i])
-        E.add_constraint(bootsS[i] | bootsM[i] | bootsL[i])#always selling
+        E.add_constraint(exclusiveOr3(shirtsS[i], shirtsM[i], shirtsL[i]))#always selling
+        E.add_constraint(exclusiveOr4(swimN[i], swimS[i], swimM[i], swimL[i]))
+        E.add_constraint(exclusiveOr3(pantsS[i], pantsM[i], pantsL[i]))#always selling
+        E.add_constraint(exclusiveOr4(jacketsN[i], jacketsS[i], jacketsM[i], jacketsL[i]))
+        E.add_constraint(exclusiveOr3(bootsS[i], bootsM[i], bootsL[i]))#always selling
 
         #Atlantic region seasonal shipments
         E.add_constraint((regionAtlantic[i] & S_spring).negate() | (shirtsL[i] & swimL[i] & pantsL[i] & jacketsL[i] & bootsL[i]))
