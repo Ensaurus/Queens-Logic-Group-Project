@@ -195,8 +195,7 @@ def example_theory():
             E.add_constraint(regionAtlantic[i])
         if(storeOb[i].region == 'territory'):
             E.add_constraint(regionTerritory[i])        
-
-        #Set population for each store
+        
         if(storeOb[i].population == '500k'):
             E.add_constraint(population500[i])
         elif(storeOb[i].population == '100k'):
