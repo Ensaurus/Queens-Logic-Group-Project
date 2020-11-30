@@ -1,3 +1,10 @@
+from functools import total_ordering
+from os import umask
+from nnf import Var
+from lib204 import Encoding
+
+from nnf import true
+
 def variableSetup():
 
     S_summer = Var('S_summer')
