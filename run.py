@@ -318,6 +318,9 @@ def example_theory(generalConditions, storeOb):
         E.add_constraint(exclusiveOr4(IN_pants45, IN_pants23, IN_pants1, IN_pants0))
         E.add_constraint(exclusiveOr4(IN_jackets45, IN_jackets23, IN_jackets1, IN_jackets0))
         E.add_constraint(exclusiveOr4(IN_boots45, IN_boots23, IN_boots1, IN_boots0))
+
+        #rural boots
+        E.add_constraint(~urbanVal[i] >> (bootsM[i] | bootsL[i]))
  
         #population >100k range  
         E.add_constraint((population100[i] | population500[i]) >> (~shirtsS[i] & ~swimS[i] & ~pantsS[i] & ~jacketsS[i] & ~bootsS[i]))
@@ -340,7 +343,14 @@ def example_theory(generalConditions, storeOb):
         #coasts, swim
         E.add_constraint(((regionPacific[i] | regionAtlantic[i]) & ~S_winter) >> (~swimN[i] & ~swimS[i]))
         
+        #not coasts, swim, winter
+        E.add_constraint((S_winter & (~regionAtlantic[i] & ~regionPacific[i])) >> swimN[i])
 
+        #summer jackets
+        E.add_constraint(S_summer >> (~jacketsL[i] & ~jacketsM[i]))
+
+        #non summer jackets
+        E.add_constraint(~S_summer >> ~jacketsN[i])
 
         '''
         #Atlantic region seasonal shipments
@@ -382,7 +392,7 @@ if __name__ == "__main__":
 #general setup
 	#Season = summer, spring, autumn, winter
 	#inventory = 0, 1, 2, 3, 4, 5
-    generalConditions = setup('summer', 5, 5, 5, 5, 5)
+    generalConditions = setup('winter', 5, 5, 5, 5, 5)
 
     #stores setup (5 stores)
     storeOb = []
