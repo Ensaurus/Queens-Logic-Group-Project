@@ -1,4 +1,4 @@
-from functools import total_ordering
+ from functools import total_ordering
 from os import umask
 from nnf import Var
 from lib204 import Encoding
@@ -44,17 +44,8 @@ class store(object):
     def __hash__(self):
         return hash("(%d) %s %s %s" % (self.population, self.urban, self.region, self.bestSeller))
 
-
-#setup general values
-#Season = summer, spring, autumn, winter
-#inventory = 0, 20, 40, 60, 80, 100
-#only works for inventory 100, season summer
-generalConditions = setup('summer', 100, 100, 100, 100, 100)
-
 #Only 1 season is true at a time
 #For inventory, if a number (say 100) is true, then all lower values (80, 60, 40, 20, 0) would be true as well
-
-
 
 S_summer = Var('S_summer')
 S_spring = Var('S_spring')
@@ -70,6 +61,8 @@ urbanVal = {}
 regionAtlantic = {}
 regionCentral = {}
 regionTerritory = {}
+#regionPraries = {}													#remove comments to include praries/pacific
+#regionPacific = {}
 bestsellerShirts = {}
 bestsellerSwimwear = {}
 for i in range(5):
@@ -83,6 +76,8 @@ for i in range(5):
     regionAtlantic[i] = Var("regionAtlantic_" + str(i))
     regionCentral[i] = Var("regionCentral_" + str(i))
     regionTerritory[i] = Var("regionTerritory_" + str(i))
+	#regionPraries[i] = Var("regionPraries_" + str(i))				#remove comments to include praries/pacific
+    #regionPacific[i] = Var("regionPacific_" + str(i))
     bestsellerShirts[i] = Var("bestsellerShirts_" + str(i))
     bestsellerSwimwear[i] = Var("bestsellerSwimwear_" + str(i))
 
@@ -166,6 +161,8 @@ def example_theory():
     E = Encoding()
 
     #general setup
+	#Season = summer, spring, autumn, winter
+	#inventory = 0, 20, 40, 60, 80, 100
     generalConditions = setup('winter', 100, 100, 100, 100, 100)
 
     #stores setup (5 stores)
@@ -199,7 +196,11 @@ def example_theory():
         if(storeOb[i].region == 'atlantic'):
             E.add_constraint(regionAtlantic[i])
         if(storeOb[i].region == 'territory'):
-            E.add_constraint(regionTerritory[i])        
+            E.add_constraint(regionTerritory[i])
+		#if(storeOb[i].region == 'praries'):						#remove comments to include praries/pacific
+        #    E.add_constraint(regionPraries[i])
+        #if(storeOb[i].region == 'pacific'):
+        #    E.add_constraint(regionPacific[i])
         
         if(storeOb[i].population == '500k'):
             E.add_constraint(population500[i])
@@ -212,59 +213,74 @@ def example_theory():
         elif(storeOb[i].population == '0k'):
             E.add_constraint(population0[i])    
         
-
-
-
+		#Considerations:
+		#narrowing down regions to 3, or include last ones
+		#include or exclude XS and XL sizes
+		#possibly use table to narrow options down to 2, then size determines which of the 2 so sizes don't contradict table
 
     for i in range(5):
 
+		#E.add_constraint()
+
         #only one population
-        #E.add_constraint(exclusiveOr5(population500[i], population100[i], population50[i], population20[i], population0[i]))
+        E.add_constraint(exclusiveOr5(population500[i], population100[i], population50[i], population20[i], population0[i]))
         
         #only one region
-        #E.add_constraint(exclusiveOr3(regionAtlantic[i], regionCentral[i], regionTerritory[i]))
+        E.add_constraint(exclusiveOr3(regionAtlantic[i], regionCentral[i], regionTerritory[i]))
 
         #Don't Need this
         #only urban or rural
         E.add_constraint(urbanVal[i] | ~urbanVal[i])
 
         #only one season
-        #E.add_constraint(exclusiveOr4(S_autumn, S_spring, S_summer, S_winter))
+        E.add_constraint(exclusiveOr4(S_autumn, S_spring, S_summer, S_winter))
 
         #Only one size pack of items
-        #E.add_constraint(exclusiveOr3(shirtsS[i], shirtsM[i], shirtsL[i]))#always selling
-        #E.add_constraint(exclusiveOr4(swimN[i], swimS[i], swimM[i], swimL[i]))
-        #E.add_constraint(exclusiveOr3(pantsS[i], pantsM[i], pantsL[i]))#always selling
-        #E.add_constraint(exclusiveOr4(jacketsN[i], jacketsS[i], jacketsM[i], jacketsL[i]))
-        #E.add_constraint(exclusiveOr3(bootsS[i], bootsM[i], bootsL[i]))#always selling
+        E.add_constraint(exclusiveOr3(shirtsS[i], shirtsM[i], shirtsL[i]))#always selling
+        E.add_constraint(exclusiveOr4(swimN[i], swimS[i], swimM[i], swimL[i]))
+        E.add_constraint(exclusiveOr3(pantsS[i], pantsM[i], pantsL[i]))#always selling
+        E.add_constraint(exclusiveOr4(jacketsN[i], jacketsS[i], jacketsM[i], jacketsL[i]))
+        E.add_constraint(exclusiveOr3(bootsS[i], bootsM[i], bootsL[i]))#always selling
 
         #Atlantic region seasonal shipments
-        #E.add_constraint((regionAtlantic[i] & S_spring).negate() | (shirtsL[i] & swimL[i] & pantsL[i] & jacketsL[i] & bootsL[i]))
-        #E.add_constraint((regionAtlantic[i] & S_summer).negate() | (shirtsL[i] & swimL[i] & pantsM[i] & jacketsS[i] & bootsM[i]))
-        #E.add_constraint((regionAtlantic[i] & S_autumn).negate() | (shirtsL[i] & swimM[i] & pantsL[i] & jacketsL[i] & bootsL[i]))
-        #E.add_constraint((regionAtlantic[i] & S_winter).negate() | (shirtsL[i] & swimS[i] & pantsL[i] & jacketsL[i] & bootsL[i]))
+        E.add_constraint((regionAtlantic[i] & S_spring).negate() | (shirtsL[i] & swimL[i] & pantsL[i] & jacketsL[i] & bootsL[i]))
+        E.add_constraint((regionAtlantic[i] & S_summer).negate() | (shirtsL[i] & swimL[i] & pantsM[i] & jacketsS[i] & bootsM[i]))
+        E.add_constraint((regionAtlantic[i] & S_autumn).negate() | (shirtsL[i] & swimM[i] & pantsL[i] & jacketsL[i] & bootsL[i]))
+        E.add_constraint((regionAtlantic[i] & S_winter).negate() | (shirtsL[i] & swimS[i] & pantsL[i] & jacketsL[i] & bootsL[i]))
 
         #Central region seasonal shipments
-        #E.add_constraint((regionCentral[i] & S_spring).negate() | (shirtsL[i] & swimL[i] & pantsL[i] & jacketsS[i] & bootsS[i]))
-        #E.add_constraint((regionCentral[i] & S_summer).negate() | (shirtsL[i] & swimL[i] & pantsM[i] & jacketsS[i] & bootsS[i]))
-        #E.add_constraint((regionCentral[i] & S_autumn).negate() | (shirtsL[i] & swimM[i] & pantsL[i] & jacketsL[i] & bootsL[i]))
-        #E.add_constraint((regionCentral[i] & S_winter).negate() | (shirtsL[i] & swimS[i] & pantsL[i] & jacketsL[i] & bootsL[i]))
+        E.add_constraint((regionCentral[i] & S_spring).negate() | (shirtsL[i] & swimL[i] & pantsL[i] & jacketsS[i] & bootsS[i]))
+        E.add_constraint((regionCentral[i] & S_summer).negate() | (shirtsL[i] & swimL[i] & pantsM[i] & jacketsS[i] & bootsS[i]))
+        E.add_constraint((regionCentral[i] & S_autumn).negate() | (shirtsL[i] & swimM[i] & pantsL[i] & jacketsL[i] & bootsL[i]))
+        E.add_constraint((regionCentral[i] & S_winter).negate() | (shirtsL[i] & swimS[i] & pantsL[i] & jacketsL[i] & bootsL[i]))
 
         #Territories seasonal shipments
-##        E.add_constraint((regionTerritory[i] & S_spring).negate() | (shirtsL[i] & swimN[i] & pantsL[i] & jacketsL[i] & bootsL[i]))
-        #this gives an error, help wanted
-        #E.add_constraint((regionTerritory[i] & S_summer).negate() | (shirtsL[i] & swimS[i] & pantsL[i] & jacketsL[i] & bootsM[i]))
-        #E.add_constraint((regionTerritory[i] & S_autumn).negate() | (shirtsL[i] & swimN[i] & pantsL[i] & jacketsL[i] & bootsL[i]))
-        #E.add_constraint((regionTerritory[i] & S_winter).negate() | (shirtsL[i] & swimN[i] & pantsL[i] & jacketsL[i] & bootsL[i]))
+        E.add_constraint((regionTerritory[i] & S_spring).negate() | (shirtsL[i] & swimN[i] & pantsL[i] & jacketsL[i] & bootsL[i]))
+        E.add_constraint((regionTerritory[i] & S_summer).negate() | (shirtsL[i] & swimS[i] & pantsL[i] & jacketsL[i] & bootsM[i]))
+        E.add_constraint((regionTerritory[i] & S_autumn).negate() | (shirtsL[i] & swimN[i] & pantsL[i] & jacketsL[i] & bootsL[i]))
+        E.add_constraint((regionTerritory[i] & S_winter).negate() | (shirtsL[i] & swimN[i] & pantsL[i] & jacketsL[i] & bootsL[i]))
 
+		#Praries seasonal shipments
+		#E.add_constraint((regionPraries[i] & S_spring).negate() | (shirtsL[i] & swimM[i] & pantsL[i] & jacketsM[i] & bootsM[i]))
+        #E.add_constraint((regionPraries[i] & S_summer).negate() | (shirtsL[i] & swimL[i] & pantsM[i] & jacketsS[i] & bootsM[i]))
+        #E.add_constraint((regionPraries[i] & S_autumn).negate() | (shirtsL[i] & swimS[i] & pantsL[i] & jacketsL[i] & bootsL[i]))
+        #E.add_constraint((regionPraries[i] & S_winter).negate() | (shirtsL[i] & swimS[i] & pantsL[i] & jacketsL[i] & bootsL[i]))
+
+		#Pacific seasonal shipments
+		#E.add_constraint((regionPacific[i] & S_spring).negate() | (shirtsL[i] & swimM[i] & pantsL[i] & jacketsS[i] & bootsL[i]))
+        #E.add_constraint((regionPacific[i] & S_summer).negate() | (shirtsL[i] & swimL[i] & pantsM[i] & jacketsN[i] & bootsL[i]))
+        #E.add_constraint((regionPacific[i] & S_autumn).negate() | (shirtsL[i] & swimM[i] & pantsL[i] & jacketsS[i] & bootsL[i]))
+        #E.add_constraint((regionPacific[i] & S_winter).negate() | (shirtsL[i] & swimS[i] & pantsL[i] & jacketsL[i] & bootsL[i]))
+
+
+
+		##BOTH OF THE FOLLOWING BREAK THE CODE, currently 'hardcoded' using the table which contradicts these
         #population >100k
         #E.add_constraint((population100[i] | population500[i]).negate() | (~shirtsS[i] & ~swimS[i] & ~pantsS[i] & ~jacketsS[i] & ~bootsS[i]))
-        
         #population <20k range
         #E.add_constraint((population0[i] | population20[i]).negate() | (~shirtsL[i] & ~swimL[i] & ~pantsL[i] & ~jacketsL[i] & ~bootsL[i]))
         
-        #E.add_constraint()
-
+		#Bestsellers not yet implemented
         #bestseller shirts (small populations (<50k) get a medium shipment if shirts are the most popular item)
         #E.add_constraint((bestsellerShirts[i] & (population0[i] | population20[i])).negate() | shirtsM[i])
         #large shipment shirts (large populations get a large shipment if shirts are the most popular item)
