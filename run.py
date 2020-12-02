@@ -386,6 +386,18 @@ def example_theory(generalConditions, storeOb):
 
     return E
 
+def display_solution(Solution):
+    for i in range(5):
+        print("Store" + (str)(i+1))
+        print('\n')
+        if (Solution['shirtsN_' + str(i)]) == True:
+            print("No shirts")
+        elif (Solution['shirtsS_' + str(i)]) == True:
+            print("Small pack of shirts")
+        elif (Solution['shirtsM_' + str(i)]) == True:
+            print("Medium pack of shirts")
+        elif (Solution['shirtsL_' + str(i)]) == True:
+            print("Large pack of shirts")
 
 if __name__ == "__main__":
 
@@ -406,4 +418,5 @@ if __name__ == "__main__":
  
     print("\nSatisfiable: %s" % T.is_satisfiable())
     print("# Solutions: %d" % T.count_solutions())
-    print("   Solution: %s" % T.solve())
+    print("Possible Solution:")
+    display_solution(T.solve())
