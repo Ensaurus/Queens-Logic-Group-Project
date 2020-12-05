@@ -40,11 +40,9 @@ We prove that in the summer or spring in the coastal regions, any store not serv
 PROOF 3:
 
 Bn  = Boots Pack Size - None
-Bxs = Boots Pack Size - Extra Small
 Bs  = Boots Pack Size - Small
 Bm  = Boots Pack Size - Medium
 Bl  = Boots Pack Size - Large
-Bxl = Boots Pack Size - Extra Large 
 
 P500 = Population >= 500K
 P100 = 100K <= Population < 500K
@@ -63,9 +61,9 @@ Ssp = Season- Spring
 Sf  = Season- Fall
 Sw  = Season- Winter
 
-The shipment has to be empty(no shipment), small , medium or large.
+The shipment has to be empty (no shipment), small , medium or large.
 The population has to fit in one of the ranges.
-A store will get an extra large pack of boots if and only if it serves a population greater than 100K and the current season is winter, or, if it's in the Pacific region serving a population
+A store will get a large pack of boots if and only if it serves a population greater than 100K and the current season is winter, or, if it's in the Pacific region serving a population
 greater than or equal to 50k and the current season isn't summer.
-We prove that a store in the Pacific region serving a population of 50k in the Spring will receive an extra large shipment of boots, while a store serving a population of 100k in the
-Atlantic region in the summer will not receive an extra large shipment of boots.
+We prove that a store in the Pacific region serving a population of 50k in the Spring will receive a large shipment of boots, while a store serving a population of 100k in the
+Atlantic region in the summer will not receive a large shipment of boots.

@@ -29,15 +29,15 @@ IS
 SEQ ("→ intro"[A,B\9,1]) (cut[B,C\10,1]) (LAYOUT "∧ elim" (0) ("∧ elim(L)"[A,B\10,7]) (hyp[A\9])) (cut[B,C\8,1]) (LAYOUT "∧ elim" (0) ("∧ elim(R)"[A,B\11,8]) (hyp[A\14])) (cut[B,C\11,1]) (LAYOUT "∧ elim" (0) ("∧ elim(L)"[A,B\11,8]) (hyp[A\14])) (cut[B,C\2,1]) ("→ MT"[A,B\3,13]) (hyp[A\12]) (hyp[A\11]) (cut[B,C\7,1]) (LAYOUT "∧ elim" (0) ("∧ elim(R)"[A,B\10,7]) (hyp[A\9])) (cut[B,C\5,1]) ("∧ intro"[A,B\8,7]) (hyp[A\8]) (hyp[A\7]) (cut[B,C\4,1]) ("→ elim"[A,B\5,4]) (hyp[A\6]) (hyp[A\5]) ("∨ elim"[A,B,C\1,3,1]) (hyp[A\4]) (hyp[A\1]) (cut[B,C\0,1]) ("¬ elim"[B\3]) (hyp[A\3]) (hyp[A\2]) ("contra (constructive)"[B\1]) (hyp[A\0])
 END
 CONJECTUREPANEL Conjectures
-PROOF "¬((P500∧P100)∨(P500∧P50)∨(P500∧P20)∨(P500∧P0)∨(P100∧P50)∨(P100∧P20)∨(P100∧P0)∨(P50∧P20)∨(P50∧P0)∨(P20∧P0)), ¬((Ssu∧Ssp)∨(Ssu∧Sf)∨(Ssu∧Sw)∨(Ssp∧Sf)∨(Ssp∧Sw)∨(Sf∧Sw)), (Sw∧(P500∨P100))∨(Rw∧¬(P20∨P0)∧¬Ssu)→Bxl, Bxl→(Sw∧(P500∨P100))∨(Rw∧¬(P20∨P0)∧¬Ssu) ⊢ ((Rw∧P50∧Ssp)→Bxl)∧((Ra∧P100∧Ssu)→¬Bxl)"
+PROOF "¬((P500∧P100)∨(P500∧P50)∨(P500∧P20)∨(P500∧P0)∨(P100∧P50)∨(P100∧P20)∨(P100∧P0)∨(P50∧P20)∨(P50∧P0)∨(P20∧P0)), ¬((Ssu∧Ssp)∨(Ssu∧Sf)∨(Ssu∧Sw)∨(Ssp∧Sf)∨(Ssp∧Sw)∨(Sf∧Sw)), (Sw∧(P500∨P100))∨(Rw∧¬(P20∨P0)∧¬Ssu)→Bl, Bl→(Sw∧(P500∨P100))∨(Rw∧¬(P20∨P0)∧¬Ssu) ⊢ ((Rw∧P50∧Ssp)→Bl)∧((Ra∧P100∧Ssu)→¬Bl)"
 INFER ¬((P500∧P100)∨(P500∧P50)∨(P500∧P20)∨(P500∧P0)∨(P100∧P50)∨(P100∧P20)∨(P100∧P0)∨(P50∧P20)∨(P50∧P0)∨(P20∧P0)),
      ¬((Ssu∧Ssp)∨(Ssu∧Sf)∨(Ssu∧Sw)∨(Ssp∧Sf)∨(Ssp∧Sw)∨(Sf∧Sw)),
-     (Sw∧(P500∨P100))∨(Rw∧¬(P20∨P0)∧¬Ssu)→Bxl,
-     Bxl→(Sw∧(P500∨P100))∨(Rw∧¬(P20∨P0)∧¬Ssu)
-     ⊢ ((Rw∧P50∧Ssp)→Bxl)∧((Ra∧P100∧Ssu)→¬Bxl)
+     (Sw∧(P500∨P100))∨(Rw∧¬(P20∨P0)∧¬Ssu)→Bl,
+     Bl→(Sw∧(P500∨P100))∨(Rw∧¬(P20∨P0)∧¬Ssu)
+     ⊢ ((Rw∧P50∧Ssp)→Bl)∧((Ra∧P100∧Ssu)→¬Bl)
 FORMULAE
-0 (Ra∧P100∧Ssu)→¬Bxl,
-1 (Rw∧P50∧Ssp)→Bxl,
+0 (Ra∧P100∧Ssu)→¬Bl,
+1 (Rw∧P50∧Ssp)→Bl,
 2 ⊥,
 3 ¬Ssu,
 4 Ssu,
@@ -58,16 +58,16 @@ FORMULAE
 19 P500∨P100,
 20 Sw∧(P500∨P100)∨Rw∧¬(P20∨P0)∧¬Ssu,
 21 Sw∧(P500∨P100),
-22 Bxl,
-23 Bxl→(Sw∧(P500∨P100))∨(Rw∧¬(P20∨P0)∧¬Ssu),
+22 Bl,
+23 Bl→(Sw∧(P500∨P100))∨(Rw∧¬(P20∨P0)∧¬Ssu),
 24 (Sw∧(P500∨P100))∨(Rw∧¬(P20∨P0)∧¬Ssu),
 25 Ra∧P100∧Ssu,
 26 Ra∧P100,
-27 ¬Bxl,
+27 ¬Bl,
 28 Ra,
 29 P100,
-30 ((Rw∧P50∧Ssp)→Bxl)∧((Ra∧P100∧Ssu)→¬Bxl),
-31 (Sw∧(P500∨P100))∨(Rw∧¬(P20∨P0)∧¬Ssu)→Bxl,
+30 ((Rw∧P50∧Ssp)→Bl)∧((Ra∧P100∧Ssu)→¬Bl),
+31 (Sw∧(P500∨P100))∨(Rw∧¬(P20∨P0)∧¬Ssu)→Bl,
 32 Ssu∧Ssp,
 33 Ssu∧Sf,
 34 Ssp,
