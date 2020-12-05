@@ -7,6 +7,9 @@ from nnf import true
 
 import varSetup
 
+from display import display_solution
+from checkBestCondition import check_best_conditions
+
 
 #For using iff(F1,F2), >> for implication and ~ for negation.
 from nnf import NNF
@@ -261,13 +264,13 @@ def example_theory(generalConditions, storeOb):
         #Set region for each store
         if(storeOb[i].region == 'central'):
             E.add_constraint(regionCentral[i])
-        if(storeOb[i].region == 'atlantic'):
+        elif(storeOb[i].region == 'atlantic'):
             E.add_constraint(regionAtlantic[i])
-        if(storeOb[i].region == 'territory'):
+        elif(storeOb[i].region == 'territory'):
             E.add_constraint(regionTerritory[i])
-        if(storeOb[i].region == 'prairies'):    
+        elif(storeOb[i].region == 'prairies'):   
             E.add_constraint(regionPrairies[i])
-        if(storeOb[i].region == 'pacific'):
+        elif(storeOb[i].region == 'pacific'):
             E.add_constraint(regionPacific[i])
         
         #Set population for each store
@@ -296,7 +299,7 @@ def example_theory(generalConditions, storeOb):
         E.add_constraint(exclusiveOr5(population500[i], population100[i], population50[i], population20[i], population0[i]))
         
         #only one region
-        E.add_constraint(exclusiveOr3(regionAtlantic[i], regionCentral[i], regionTerritory[i]))
+        E.add_constraint(exclusiveOr5(regionAtlantic[i], regionCentral[i], regionTerritory[i], regionPacific[i], regionPrairies[i]))
 
         #Don't Need this
         #only urban or rural
@@ -351,73 +354,34 @@ def example_theory(generalConditions, storeOb):
 
         #non summer jackets
         E.add_constraint(~S_summer >> ~jacketsN[i])
-
-        '''
-        #Atlantic region seasonal shipments
-        E.add_constraint((regionAtlantic[i] & S_spring).negate() | (shirtsL[i] & swimL[i] & pantsL[i] & jacketsL[i] & bootsL[i]))
-        E.add_constraint((regionAtlantic[i] & S_summer).negate() | (shirtsL[i] & swimL[i] & pantsM[i] & jacketsS[i] & bootsM[i]))
-        E.add_constraint((regionAtlantic[i] & S_autumn).negate() | (shirtsL[i] & swimM[i] & pantsL[i] & jacketsL[i] & bootsL[i]))
-        E.add_constraint((regionAtlantic[i] & S_winter).negate() | (shirtsL[i] & swimS[i] & pantsL[i] & jacketsL[i] & bootsL[i]))
-
-        #Central region seasonal shipments
-        E.add_constraint((regionCentral[i] & S_spring).negate() | (shirtsL[i] & swimL[i] & pantsL[i] & jacketsS[i] & bootsS[i]))
-        E.add_constraint((regionCentral[i] & S_summer).negate() | (shirtsL[i] & swimL[i] & pantsM[i] & jacketsS[i] & bootsS[i]))
-        E.add_constraint((regionCentral[i] & S_autumn).negate() | (shirtsL[i] & swimM[i] & pantsL[i] & jacketsL[i] & bootsL[i]))
-        E.add_constraint((regionCentral[i] & S_winter).negate() | (shirtsL[i] & swimS[i] & pantsL[i] & jacketsL[i] & bootsL[i]))
-
-        #Territories seasonal shipments
-        E.add_constraint((regionTerritory[i] & S_spring).negate() | (shirtsL[i] & swimN[i] & pantsL[i] & jacketsL[i] & bootsL[i]))
-        E.add_constraint((regionTerritory[i] & S_summer).negate() | (shirtsL[i] & swimS[i] & pantsL[i] & jacketsL[i] & bootsM[i]))
-        E.add_constraint((regionTerritory[i] & S_autumn).negate() | (shirtsL[i] & swimN[i] & pantsL[i] & jacketsL[i] & bootsL[i]))
-        E.add_constraint((regionTerritory[i] & S_winter).negate() | (shirtsL[i] & swimN[i] & pantsL[i] & jacketsL[i] & bootsL[i]))
-
-		#Praries seasonal shipments
-		#E.add_constraint((regionPraries[i] & S_spring).negate() | (shirtsL[i] & swimM[i] & pantsL[i] & jacketsM[i] & bootsM[i]))
-        #E.add_constraint((regionPraries[i] & S_summer).negate() | (shirtsL[i] & swimL[i] & pantsM[i] & jacketsS[i] & bootsM[i]))
-        #E.add_constraint((regionPraries[i] & S_autumn).negate() | (shirtsL[i] & swimS[i] & pantsL[i] & jacketsL[i] & bootsL[i]))
-        #E.add_constraint((regionPraries[i] & S_winter).negate() | (shirtsL[i] & swimS[i] & pantsL[i] & jacketsL[i] & bootsL[i]))
-
-		#Pacific seasonal shipments
-		#E.add_constraint((regionPacific[i] & S_spring).negate() | (shirtsL[i] & swimM[i] & pantsL[i] & jacketsS[i] & bootsL[i]))
-        #E.add_constraint((regionPacific[i] & S_summer).negate() | (shirtsL[i] & swimL[i] & pantsM[i] & jacketsN[i] & bootsL[i]))
-        #E.add_constraint((regionPacific[i] & S_autumn).negate() | (shirtsL[i] & swimM[i] & pantsL[i] & jacketsS[i] & bootsL[i]))
-        #E.add_constraint((regionPacific[i] & S_winter).negate() | (shirtsL[i] & swimS[i] & pantsL[i] & jacketsL[i] & bootsL[i]))
-        '''
-
     return E
-
-def display_solution(Solution):
-    for i in range(5):
-        print('\n')
-        print("Store" + (str)(i+1))
-        print('\n')
-        if (Solution['shirtsN_' + str(i)]) == True:
-            print("No shirts")
-        elif (Solution['shirtsS_' + str(i)]) == True:
-            print("Small pack of shirts")
-        elif (Solution['shirtsM_' + str(i)]) == True:
-            print("Medium pack of shirts")
-        elif (Solution['shirtsL_' + str(i)]) == True:
-            print("Large pack of shirts")
 
 if __name__ == "__main__":
 
 #general setup
 	#Season = summer, spring, autumn, winter
 	#inventory = 0, 1, 2, 3, 4, 5
-    generalConditions = setup('winter', 5, 5, 5, 5, 5)
+    generalConditions = setup('summer', 5, 2, 1, 0, 4)
 
     #stores setup (5 stores)
+    #central, atlantic, territory, prairies, pacific
     storeOb = []
     storeOb.append(store('500k', 'urban', 'central', 'swimwear'))
-    storeOb.append(store('20k', 'rural', 'atlantic', 'shirts'))
-    storeOb.append(store('100k', 'urban', 'pacific', 'swimwear'))
-    storeOb.append(store('100k', 'urban', 'prairies', 'shirts'))
-    storeOb.append(store('0k', 'rural', 'territory', 'shirts'))
+    storeOb.append(store('20k', 'rural', 'territory', 'shirts'))
+    storeOb.append(store('100k', 'urban', 'prairies', 'swimwear'))
+    storeOb.append(store('100k', 'urban', 'pacific', 'shirts'))
+    storeOb.append(store('0k', 'rural', 'central', 'shirts'))
 
     T = example_theory(generalConditions, storeOb)
- 
     print("\nSatisfiable: %s" % T.is_satisfiable())
     print("# Solutions: %d" % T.count_solutions())
-    print("Possible Solution:")
-    display_solution(T.solve())
+    #print(T.solve())
+    if(T.is_satisfiable()):
+        print("\n\nNow trying to find the best solution, \n")
+
+        T = check_best_conditions(T, shirtsL, shirtsM, shirtsS, swimL, swimM, swimS, pantsL, pantsM, pantsS, jacketsL, jacketsM, jacketsS, bootsL, bootsM, bootsS)
+ 
+        print("\nSatisfiable: %s" % T.is_satisfiable())
+        print("# Solutions: %d" % T.count_solutions())
+        print("\nPossible Solution:\n")
+        display_solution(T.solve())
