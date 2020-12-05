@@ -388,6 +388,7 @@ def example_theory(generalConditions, storeOb):
 
 def display_solution(Solution):
     for i in range(5):
+        print('\n')
         print("Store" + (str)(i+1))
         print('\n')
         if (Solution['shirtsN_' + str(i)]) == True:
