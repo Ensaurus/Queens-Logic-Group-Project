@@ -285,10 +285,6 @@ def example_theory(generalConditions, storeOb):
         elif(storeOb[i].population == '0k'):
             E.add_constraint(population0[i])    
         
-		#Considerations:
-		#narrowing down regions to 3, or include last ones
-		#include or exclude XS and XL sizes
-		#possibly use table to narrow options down to 2, then size determines which of the 2 so sizes don't contradict table
 
     for i in range(5):
         '''
@@ -356,12 +352,52 @@ def example_theory(generalConditions, storeOb):
         E.add_constraint(~S_summer >> ~jacketsN[i])
     return E
 
+def getSeason():
+	isInvalid = True
+	userInput = 0
+	print("1 = Spring")
+	print("2 = Summer")
+	print("3 = Autumn")
+	print("4 = Winter")
+	while isInvalid:
+		try:
+			userInput = int(input("Please enter the current season as an integer between 1 and 4: "))
+			if ((1 <= userInput) and (userInput <= 4)):
+				isInvalid = False
+			else:
+				print("Value entered is out of bounds provided.")
+		except Exception as e:
+			print(e)
+	if (userInput == 1):
+		return 'spring'
+	elif (userInput == 2):
+		return 'summer'
+	elif (userInput == 3):
+		return 'autumn'
+	else:
+		return 'winter'
+
+def getSetup(product):
+	isInvalid = True
+	userInput = 0
+	while isInvalid:
+		try:
+			userInput = int(input("Enter the integer stock value between 0 and 5 for " + product + ": "))
+			if ((0 <= userInput) and (userInput <= 5)):
+				isInvalid = False
+			else:
+				print("Value entered is out of bounds provided.")
+		except Exception as e:
+			print(e)
+	return userInput
+
 if __name__ == "__main__":
 
 #general setup
 	#Season = summer, spring, autumn, winter
 	#inventory = 0, 1, 2, 3, 4, 5
-    generalConditions = setup('summer', 5, 2, 1, 0, 4)
+	#products ordered shirts, swimwear, pants, jackets, boots
+    generalConditions = setup(getSeason(), getSetup('shirts'), getSetup('swimwear'), getSetup('pants'), getSetup('jackets'), getSetup('boots'))
 
     #stores setup (5 stores)
     #central, atlantic, territory, prairies, pacific
