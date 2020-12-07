@@ -5,8 +5,6 @@ from lib204 import Encoding
 
 from nnf import true
 
-import varSetup
-
 from display import display_solution
 from checkBestCondition import check_best_conditions
 
@@ -100,6 +98,9 @@ regionPacific = {}
 
 bestsellerShirts = {}
 bestsellerSwimwear = {}
+bestsellerPants = {}
+bestsellerJackets = {}
+bestsellerBoots = {}
 
 for i in range(5):
     population500[i] = Var("population500_" + str(i))
@@ -118,6 +119,9 @@ for i in range(5):
 
     bestsellerShirts[i] = Var("bestsellerShirts_" + str(i))
     bestsellerSwimwear[i] = Var("bestsellerSwimwear_" + str(i))
+    bestsellerPants[i] = Var("bestsellerPants_" + str(i))
+    bestsellerJackets[i] = Var("bestsellerJackets_" + str(i))
+    bestsellerBoots[i] = Var("bestsellerBoots_" + str(i))
 
 
 #shipment sizes, array because its for 5 stores (0-4)
@@ -192,7 +196,9 @@ def invert(thing):
 def example_theory(generalConditions, storeOb):
     E = Encoding()
 
-    #Season
+    '''
+    Season
+    '''
     if(generalConditions.season == 'summer'):
         E.add_constraint(S_summer)
     elif(generalConditions.season == 'winter'):
@@ -202,7 +208,9 @@ def example_theory(generalConditions, storeOb):
     elif(generalConditions.season == 'autumn'):
         E.add_constraint(S_autumn)
 
-    #Inventory
+    '''
+    Inventory
+    '''
 
     #shirts
     if(generalConditions.INshirts == 4 or generalConditions.INshirts == 5):
@@ -212,9 +220,10 @@ def example_theory(generalConditions, storeOb):
     elif(generalConditions.INshirts == 1):
         E.add_constraint(IN_shirts1)
     elif(generalConditions.INshirts == 0):
+        print("ggfgkfn")
         E.add_constraint(IN_shirts0)
 
-    #swim
+    #swimwear
     if(generalConditions.INswim == 4 or generalConditions.INswim == 5):
         E.add_constraint(IN_swim45)
     elif(generalConditions.INswim == 2 or generalConditions.INswim == 3):
@@ -284,22 +293,28 @@ def example_theory(generalConditions, storeOb):
             E.add_constraint(population20[i])    
         elif(storeOb[i].population == '0k'):
             E.add_constraint(population0[i])    
-        
+
+        #bestseller
+        if(storeOb[i].bestSeller == 'shirts'):
+            E.add_constraint(bestsellerShirts[i])
+        elif(storeOb[i].bestSeller == 'swimwear'):
+            E.add_constraint(bestsellerSwimwear[i])
+        elif(storeOb[i].bestSeller == 'pants'):
+            E.add_constraint(bestsellerPants[i])
+        elif(storeOb[i].bestSeller == 'jackets'):
+            E.add_constraint(bestsellerJackets[i])
+        elif(storeOb[i].bestSeller == 'boots'):
+            E.add_constraint(bestsellerBoots[i])
 
     for i in range(5):
         '''
         Basic Constraints
         '''
-
         #only one population
         E.add_constraint(exclusiveOr5(population500[i], population100[i], population50[i], population20[i], population0[i]))
         
         #only one region
         E.add_constraint(exclusiveOr5(regionAtlantic[i], regionCentral[i], regionTerritory[i], regionPacific[i], regionPrairies[i]))
-
-        #Don't Need this
-        #only urban or rural
-        E.add_constraint(urbanVal[i] | ~urbanVal[i])
 
         #only one season
         E.add_constraint(exclusiveOr4(S_autumn, S_spring, S_summer, S_winter))
@@ -318,14 +333,214 @@ def example_theory(generalConditions, storeOb):
         E.add_constraint(exclusiveOr4(IN_jackets45, IN_jackets23, IN_jackets1, IN_jackets0))
         E.add_constraint(exclusiveOr4(IN_boots45, IN_boots23, IN_boots1, IN_boots0))
 
+        #only one best seller item
+        E.add_constraint(exclusiveOr5(bestsellerShirts[i], bestsellerSwimwear[i], bestsellerPants[i], bestsellerJackets[i], bestsellerBoots[i]))
+
+        '''
+        What we could consider as the 'actual' constraints
+        '''
+        #
+        #Constraints divided w.r.t clothing categories
+        #
+        '''
+        Shirts
+
+        Shirts are liked in every season, every region and in both urban and rural populations,
+        so the quantity only depends upon the population and bestseller category.
+        '''
+        #Adequate supply of shirts
+        if (E.is_constraint(IN_shirts45)):
+            #population >100k
+            E.add_constraint((population100[i] | population500[i]) >> shirtsL[i])
+
+            #population <100k, >50k
+            E.add_constraint(population50[i] >> (shirtsM[i] | shirtsL[i]))
+            E.add_constraint((~bestsellerShirts[i] & population50[i]) >> shirtsM[i])
+            
+            #population <50k
+            E.add_constraint((population0[i] | population20[i]) >> (shirtsS[i] | shirtsM[i]))
+            E.add_constraint((~bestsellerShirts[i] & (population0[i] | population20[i])) >> shirtsS[i])
+
+        #Low supply of shirts
+        elif (E.is_constraint(IN_shirts23)):
+            #population > 500k
+            E.add_constraint(population500[i] >> shirtsL[i])
+
+            #population >100k
+            E.add_constraint(population100[i] >> (shirtsM[i] | shirtsL[i]))
+            E.add_constraint((~bestsellerShirts[i] & population100[i]) >> shirtsM[i])
+
+            #population < 100k
+            E.add_constraint((population50[i] | population20[i]) >> (shirtsS[i] | shirtsM[i]))
+            E.add_constraint((~bestsellerShirts[i] & (population50[i] | population20[i])) >> shirtsS[i])
+
+            #population <20k
+            E.add_constraint(population0[i] >> (shirtsN[i] | shirtsS[i]))
+            E.add_constraint((~bestsellerShirts[i] & population0[i]) >> shirtsN[i])
+
+        #Very low supply of shirts
+        elif (E.is_constraint(IN_shirts1)):
+            #population >100k
+            E.add_constraint((population100[i] | population500[i]) >> (shirtsS[i] | shirtsM[i]))
+            E.add_constraint((~bestsellerShirts[i] & (population100[i] | population500[i])) >> shirtsS[i])
+
+            #population <100k
+            E.add_constraint((population50[i] | population20[i] | population0[i]) >> (shirtsN[i] | shirtsS[i]))
+            E.add_constraint((~bestsellerShirts[i] & (population50[i] | population20[i] | population0[i])) >> shirtsN[i])
+
+        #No supply
+        else:
+            E.add_constraint(shirtsN[i])
+
+        '''
+        Swimwear
+
+        Coastal regions (atlantic and pacific) and central have the highest demand for swimwear.
+        Territories have very little demand. 
+        Summers and spring are the best seasons.
+        '''
+        
+        E.add_constraint(((regionPacific[i] | regionAtlantic[i]) & ~S_winter) >> (~swimN[i] & ~swimS[i]))
+        
+
+        #General for winter
+        E.add_constraint((S_winter & (~regionCentral[i] & ~regionAtlantic[i] & ~regionPacific[i])) >> swimN[i])
+        
+        #General for territores
+        E.add_constraint((regionTerritory[i] & ~S_summer) >> swimN[i])
+
+        #Adequate supply of swimwear
+        if (E.is_constraint(IN_swim45)):
+            #summer, territories
+            E.add_constraint((regionTerritory[i] & S_summer) >> swimS[i])
+
+        #Low supply of swimwear
+        elif (E.is_constraint(IN_swim23)):
+            #summer, territories
+            E.add_constraint((regionTerritory[i] & S_summer) >> swimS[i])
+
+        #Very low supply of swimwear        
+        elif (E.is_constraint(IN_swim1)):
+
+            
+        
+        #No supply
+        else:
+            E.add_constraint(swimN[i])
+        '''
+        Pants
+
+        Except the territories, all regions have slighly lower requirements for pants in the 
+        summers since some people switch to wearing shorts.
+        Generally pretty stable requirements just like shirts.
+        '''
+        #Adequate supply of Pants
+        if (E.is_constraint(IN_pants45)):
+
+            if(E.is_constraint(S_summer)):
+                #population >500k
+                E.add_constraint(population500[i] >> pantsL[i])
+
+                #population >50k
+                E.add_constraint((population100[i] | population50[i]) >> (pantsM[i] | pantsL[i]))
+                E.add_constraint(((population100[i] | population50[i]) & (~regionTerritory[i] | ~bestsellerPants[i])) >> pantsM[i])
+            
+                #population <50k
+                E.add_constraint((population0[i] | population20[i]) >> (pantsS[i] | pantsM[i]))
+                E.add_constraint(((population0[i] | population20[i]) & (~regionTerritory[i] | ~bestsellerPants[i])) >> pantsS[i])
+
+            else:
+                #population >100k
+                E.add_constraint((population100[i] | population500[i]) >> pantsL[i])
+
+                #population <100k, >50k
+                E.add_constraint(population50[i] >> (pantsM[i] | pantsL[i]))
+                E.add_constraint((~bestsellerPants[i] & population50[i]) >> pantsM[i])
+                
+                #population <50k
+                E.add_constraint((population0[i] | population20[i]) >> (pantsS[i] | pantsM[i]))
+                E.add_constraint((~bestsellerPants[i] & (population0[i] | population20[i])) >> pantsS[i])
+
+        #Low supply of Pants
+        elif (E.is_constraint(IN_pants23)):
+
+            if(E.is_constraint(S_summer)):
+
+                #population >100k
+                E.add_constraint((population500[i] | population100[i] | population50[i]) >> (pantsM[i] | pantsL[i]))
+                E.add_constraint(((population500[i] | population100[i] | population50[i]) & (~regionTerritory[i] | ~bestsellerPants[i])) >> pantsM[i])
+
+                #population <100k
+                E.add_constraint((population50[i] | population20[i]) >> (pantsM[i] | pantsL[i]))
+                E.add_constraint(((population50[i] | population20[i]) & (~regionTerritory[i] | ~bestsellerPants[i])) >> pantsM[i])
+
+                #population <20k
+                E.add_constraint(population0[i] >> (pantsN[i] | pantsS[i]))
+                E.add_constraint((~bestsellerPants[i] & population0[i]) >> pantsN[i])
+
+            else:
+                #population > 500k
+                E.add_constraint(population500[i] >> pantsL[i])
+
+                #population >100k
+                E.add_constraint(population100[i] >> (pantsM[i] | pantsL[i]))
+                E.add_constraint((~bestsellerPants[i] & population100[i]) >> pantsM[i])
+
+                #population < 100k
+                E.add_constraint((population50[i] | population20[i]) >> (pantsS[i] | pantsM[i]))
+                E.add_constraint((~bestsellerPants[i] & (population50[i] | population20[i])) >> pantsS[i])
+
+                #population <20k
+                E.add_constraint(population0[i] >> (pantsN[i] | pantsS[i]))
+                E.add_constraint((~bestsellerPants[i] & population0[i]) >> pantsN[i])
+        
+        #Very low supply of Pants        
+        elif (E.is_constraint(IN_pants1)):
+            #population >100k
+            E.add_constraint((population100[i] | population500[i]) >> (pantsS[i] | pantsM[i]))
+            E.add_constraint((~bestsellerPants[i] & (population100[i] | population500[i])) >> pantsS[i])
+
+            #population <100k
+            E.add_constraint((population50[i] | population20[i] | population0[i]) >> (pantsN[i] | pantsS[i]))
+            E.add_constraint((~bestsellerPants[i] & (population50[i] | population20[i] | population0[i])) >> pantsN[i])
+        
+        #No supply
+        else:
+            E.add_constraint(pantsN[i])
+        '''
+        Jackets
+        '''
+        #Adequate supply of Jackets
+        if (E.is_constraint(IN_jackets45)):
+        
+        #Low supply of Jackets
+        elif (E.is_constraint(IN_jackets23)):
+        
+        #Very low supply of Jackets        
+        elif (E.is_constraint(IN_jackets1)):
+        
+        #No supply
+        else:
+            E.add_constraint(jacketsN[i])
+        '''
+        Boots
+        '''
+        #Adequate supply of Boots
+        if (E.is_constraint(IN_boots45)):
+        
+        #Low supply of Boots
+        elif (E.is_constraint(IN_swim23)):
+        
+        #Very low supply of Boots        
+        elif (E.is_constraint(IN_swim1)):
+        
+        #No supply
+        else:
+            E.add_constraint(bootsN[i])
+        '''
+        '''
         #rural boots
         E.add_constraint(~urbanVal[i] >> (bootsM[i] | bootsL[i]))
- 
-        #population >100k range  
-        E.add_constraint((population100[i] | population500[i]) >> (~shirtsS[i] & ~swimS[i] & ~pantsS[i] & ~jacketsS[i] & ~bootsS[i]))
-            
-        #population <20k range
-        E.add_constraint((population0[i] | population20[i]) >> (~shirtsL[i] & ~swimL[i] & ~pantsL[i] & ~jacketsL[i] & ~bootsL[i]))
 
         #Summers, jackets, territories
         E.add_constraint((S_summer & regionTerritory[i]) >> (jacketsS[i]))
@@ -333,17 +548,7 @@ def example_theory(generalConditions, storeOb):
         #other seasons, jackets, territories
         E.add_constraint((regionTerritory[i] & ~S_summer) >> (~jacketsN[i] & ~jacketsS[i]))
 
-        #territories, swim
-        E.add_constraint((regionTerritory[i] & ~S_summer) >> swimN[i])
-
-        #territories, swim, summer
-        E.add_constraint((regionTerritory[i] & S_summer) >> swimS[i])
-
-        #coasts, swim
-        E.add_constraint(((regionPacific[i] | regionAtlantic[i]) & ~S_winter) >> (~swimN[i] & ~swimS[i]))
         
-        #not coasts, swim, winter
-        E.add_constraint((S_winter & (~regionAtlantic[i] & ~regionPacific[i])) >> swimN[i])
 
         #summer jackets
         E.add_constraint(S_summer >> (~jacketsL[i] & ~jacketsM[i]))
@@ -400,13 +605,16 @@ if __name__ == "__main__":
     generalConditions = setup(getSeason(), getSetup('shirts'), getSetup('swimwear'), getSetup('pants'), getSetup('jackets'), getSetup('boots'))
 
     #stores setup (5 stores)
+    #500k, 100k,, 50k, 20k, 0k
+    #urban, rural
     #central, atlantic, territory, prairies, pacific
+    #shirts, swimwear, pants, jackets, boots
     storeOb = []
     storeOb.append(store('500k', 'urban', 'central', 'swimwear'))
-    storeOb.append(store('20k', 'rural', 'territory', 'shirts'))
-    storeOb.append(store('100k', 'urban', 'prairies', 'swimwear'))
-    storeOb.append(store('100k', 'urban', 'pacific', 'shirts'))
-    storeOb.append(store('0k', 'rural', 'central', 'shirts'))
+    storeOb.append(store('100k', 'rural', 'territory', 'shirts'))
+    storeOb.append(store('50k', 'urban', 'prairies', 'swimwear'))
+    storeOb.append(store('20k', 'urban', 'pacific', 'pants'))
+    storeOb.append(store('0k', 'rural', 'atlantic', 'shirts'))
 
     T = example_theory(generalConditions, storeOb)
     print("\nSatisfiable: %s" % T.is_satisfiable())

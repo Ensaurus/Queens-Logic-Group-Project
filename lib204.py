@@ -32,6 +32,13 @@ class Encoding(object):
     def remove_constraint(self, c):
         self.constraints.remove(c)
 
+    #added method
+    def is_constraint(self, c):
+        for con in self.constraints:
+            if(con == c):
+                return 1
+        return 0
+
     @config(sat_backend="kissat")
     def is_satisfiable(self):
         return And(self.constraints).satisfiable()
