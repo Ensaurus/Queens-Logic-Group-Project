@@ -220,7 +220,6 @@ def example_theory(generalConditions, storeOb):
     elif(generalConditions.INshirts == 1):
         E.add_constraint(IN_shirts1)
     elif(generalConditions.INshirts == 0):
-        print("ggfgkfn")
         E.add_constraint(IN_shirts0)
 
     #swimwear
@@ -512,6 +511,7 @@ def example_theory(generalConditions, storeOb):
             E.add_constraint(pantsN[i])
         '''
         Jackets
+
         The requirements for jackets varies heavily across the different regions and seasons.
         Split the code based on the region, since demand is more dependent upon region as compared to season.
         '''
@@ -637,43 +637,86 @@ def example_theory(generalConditions, storeOb):
             E.add_constraint(jacketsN[i])
         '''
         Boots
+
+        Boots are slightly less popular in the central region (in spring and summer) as compared to rest of Canada. 
+        Boots are also more popular in rural areas than in urban areas.
+        Split between central and other areas.
         ''' 
         #Adequate supply of Boots
         if (E.is_constraint(IN_boots45)):
-            E.add_constraint(S_autumn | S_spring | S_summer | S_winter)
+            
+            #population >100k
+            E.add_constraint((population500[i] | population100[i]) >> bootsL[i])
+
+            #Central region
+            if(E.is_constraint(regionCentral[i])):
+
+                #population >50k
+                E.add_constraint(((S_winter | S_autumn) & population50[i]) >> (bootsM[i] | bootsL[i]))
+                E.add_constraint(((S_winter | S_autumn) & population50[i] & (~bestsellerBoots[i] | urbanVal[i])) >> bootsM[i])
+
+                E.add_constraint(((S_summer | S_spring) & population50[i]) >> bootsM[i])
+
+                #population <50k
+                E.add_constraint(((S_winter | S_autumn) & (population20[i] | population0[i])) >> (bootsS[i] | bootsM[i]))
+                E.add_constraint(((S_winter | S_autumn) & (population20[i] | population0[i]) & (~bestsellerBoots[i] | urbanVal[i])) >> bootsS[i])
+
+                E.add_constraint(((S_summer | S_spring) & (population20[i] | population0[i])) >> bootsS[i])
+
+            #Other regions
+            else:
+                #population <100k, >50k
+                E.add_constraint(population50[i] >> (bootsM[i] | bootsL[i]))
+                E.add_constraint(((~bestsellerBoots[i] | urbanVal[i]) & population50[i]) >> bootsM[i])
+                
+                #population <50k
+                E.add_constraint((population0[i] | population20[i]) >> (bootsS[i] | bootsM[i]))
+                E.add_constraint(((~bestsellerBoots[i] | urbanVal[i]) & (population0[i] | population20[i])) >> bootsS[i])
 
         
         #Low supply of Boots
-        elif (E.is_constraint(IN_swim23)):
-            E.add_constraint(S_autumn | S_spring | S_summer | S_winter)
+        elif (E.is_constraint(IN_boots23)):
+            
+            #population >500k
+            E.add_constraint(population500[i] >> bootsL[i])
 
+            #Central region
+            if(E.is_constraint(regionCentral[i])):
+
+                #population >50k
+                E.add_constraint(((S_winter | S_autumn) & (population50[i] | population100[i])) >> (bootsS[i] | bootsM[i]))
+                E.add_constraint(((S_winter | S_autumn) & population50[i] & (~bestsellerBoots[i] | urbanVal[i])) >> bootsS[i])
+
+                E.add_constraint(((S_summer | S_spring) & population50[i]) >> bootsS[i])
+
+                #population <50k
+                E.add_constraint((population0[i] | population20[i]) >> bootsS[i])
+
+            #Other regions
+            else:
+                #population <100k, >50k
+                E.add_constraint((population50[i] | population100[i]) >> (bootsS[i] | bootsM[i]))
+                E.add_constraint(((~bestsellerBoots[i] | urbanVal[i]) & population50[i]) >> bootsS[i])
+                
+                #population <50k
+                E.add_constraint((population0[i] | population20[i]) >> bootsS[i])
+                
         
         #Very low supply of Boots        
-        elif (E.is_constraint(IN_swim1)):
-            E.add_constraint(S_autumn | S_spring | S_summer | S_winter)
+        elif (E.is_constraint(IN_boots1)):
+            #population >100k
+            E.add_constraint((population100[i] | population500[i]) >> (bootsS[i] | bootsM[i]))
+            E.add_constraint(((~bestsellerShirts[i] | urbanVal[i]) & (population100[i] | population500[i])) >> bootsS[i])
+
+            #population <100k
+            E.add_constraint((population50[i] | population20[i] | population0[i]) >> (bootsN[i] | bootsS[i]))
+            E.add_constraint(((~bestsellerShirts[i] | urbanVal[i]) & (population50[i] | population20[i] | population0[i])) >> bootsN[i])
 
         
         #No supply
         else:
             E.add_constraint(bootsN[i])
-        '''
-        '''
-        #rural boots
-        E.add_constraint(~urbanVal[i] >> (bootsM[i] | bootsL[i]))
 
-        #Summers, jackets, territories
-        E.add_constraint((S_summer & regionTerritory[i]) >> (jacketsS[i]))
-
-        #other seasons, jackets, territories
-        E.add_constraint((regionTerritory[i] & ~S_summer) >> (~jacketsN[i] & ~jacketsS[i]))
-
-        
-
-        #summer jackets
-        E.add_constraint(S_summer >> (~jacketsL[i] & ~jacketsM[i]))
-
-        #non summer jackets
-        E.add_constraint(~S_summer >> ~jacketsN[i])
     return E
 
 def getSeason():
