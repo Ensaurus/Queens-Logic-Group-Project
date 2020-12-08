@@ -435,11 +435,11 @@ def example_theory(generalConditions, storeOb):
             if(E.is_constraint(S_summer) | E.is_constraint(S_spring) | E.is_constraint(S_autumn)):
                 #population >100k
                 E.add_constraint((population500[i] | population100[i]) >> (swimM[i] | swimS[i] | swimN[i]))
-                E.add_constraint((population500[i] | population100[i]) & ~bestsellerSwimwear[i] >> swimS[i])
+                E.add_constraint(((population500[i] | population100[i]) & ~bestsellerSwimwear[i]) >> (swimS[i] | swimN[i]))
 
                 #population <100k
                 E.add_constraint((population50[i] | population20[i] | population0[i]) >> (swimM[i] | swimS[i] | swimN[i]))
-                E.add_constraint((population50[i] | population20[i] | population0[i]) & ~bestsellerSwimwear[i] >> (swimS[i] | swimN[i]))
+                E.add_constraint(((population50[i] | population20[i] | population0[i]) & ~bestsellerSwimwear[i]) >> (swimS[i] | swimN[i]))
 
         #Very low supply of swimwear        
         elif (E.is_constraint(IN_swim1)):
@@ -451,7 +451,7 @@ def example_theory(generalConditions, storeOb):
             if(E.is_constraint(S_summer) | E.is_constraint(S_spring) | E.is_constraint(S_autumn)):
                 #population >100k
                 E.add_constraint((population500[i] | population100[i]) >> (swimM[i] | swimS[i] | swimN[i]))
-                E.add_constraint((population500[i] | population100[i]) & ~bestsellerSwimwear[i] >> (swimS[i] | swimN[i]))
+                E.add_constraint(((population500[i] | population100[i]) & ~bestsellerSwimwear[i]) >> (swimS[i] | swimN[i]))
 
                 #population <100k
                 E.add_constraint((population50[i] | population20[i] | population0[i]) >> (swimS[i] | swimN[i]))
@@ -600,7 +600,7 @@ def example_theory(generalConditions, storeOb):
                 E.add_constraint(((S_winter | S_autumn) & (population500[i] | population100[i])) >> jacketsL[i])
                 E.add_constraint(((S_spring | S_summer) & (population500[i] | population100[i])) >> (jacketsL[i] | jacketsM[i]))
                 E.add_constraint((S_spring & (population100[i] & ~bestsellerJackets[i])) >> jacketsM[i])
-                E.add_constraint((S_summer & (population100[i] | ~bestsellerJackets[i])) >> jacketsM[i])
+                E.add_constraint((S_summer & (population100[i] & ~bestsellerJackets[i])) >> jacketsM[i])
                 
                 #population >50k
                 E.add_constraint(((S_winter | S_autumn) & population50[i]) >> jacketsM[i])
@@ -651,14 +651,17 @@ def example_theory(generalConditions, storeOb):
                 for j in range(5):
                     if(E.is_constraint(regionTerritory[j])):
                         list_terr.append(j)
+                        #print("appended " + str(j) + ".")
 
                 if(len(list_terr) != 0):
                     for k in range(5):
                         
                         if k in list_terr:
                             E.add_constraint(jacketsS[k])
+                            #print("small " + str(k) + ".")
                         else:
                             E.add_constraint(jacketsN[k])
+                            #print("none " + str(k) + ".")
                 
                 else:
                     for k in range(5):
