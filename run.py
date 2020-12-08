@@ -526,7 +526,7 @@ def example_theory(generalConditions, storeOb):
                 E.add_constraint((population20[i] | population0[i]) >> jacketsM[i])
 
             #atlantic and pacific
-            elif(E.is_constraint(regionAtlantic[i]) | regionPacific[i]):
+            elif(E.is_constraint(regionAtlantic[i]) | E.is_constraint(regionPacific[i])):
 
                 #population >100k
                 E.add_constraint((population500[i] | population100[i]) >> (jacketsM[i] | jacketsL[i]))
