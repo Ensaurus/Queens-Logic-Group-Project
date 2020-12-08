@@ -399,36 +399,69 @@ def example_theory(generalConditions, storeOb):
         Territories have very little demand. 
         Summers and spring are the best seasons.
         '''
-        '''
-        E.add_constraint(((regionPacific[i] | regionAtlantic[i]) & ~S_winter) >> (~swimN[i] & ~swimS[i]))
-        
 
         #General for winter
-        E.add_constraint((S_winter & (~regionCentral[i] & ~regionAtlantic[i] & ~regionPacific[i])) >> swimN[i])
+        E.add_constraint((S_winter & (regionTerritory[i] | regionPrairies[i])) >> swimN[i])
         
         #General for territores
         E.add_constraint((regionTerritory[i] & ~S_summer) >> swimN[i])
 
         #Adequate supply of swimwear
         if (E.is_constraint(IN_swim45)):
-            #summer, territories
-            E.add_constraint((regionTerritory[i] & S_summer) >> swimS[i])
+            
+            #winter
+            E.add_constraint(S_winter >> (swimN[i] | swimS[i]))
+
+            #Not winter
+            if(E.is_constraint(S_summer) | E.is_constraint(S_spring) | E.is_constraint(S_autumn)):
+                #population >100k
+                E.add_constraint((population100[i] | population500[i]) >> (swimL[i] | swimN[i]))
+
+                #population <100k, >50k
+                E.add_constraint(population50[i] >> (swimM[i] | swimL[i] | swimN[i]))
+                E.add_constraint((~bestsellerSwimwear[i] & population50[i]) >> (swimM[i] | swimN[i]))
+                
+                #population <50k
+                E.add_constraint((population0[i] | population20[i]) >> (swimS[i] | swimM[i] |swimN[i]))
+                E.add_constraint((~bestsellerSwimwear[i] & (population0[i] | population20[i])) >> (swimS[i] | swimN[i]))
 
         #Low supply of swimwear
         elif (E.is_constraint(IN_swim23)):
-            #summer, territories
-            E.add_constraint((regionTerritory[i] & S_summer) >> swimS[i])
+            
+            #winter
+            E.add_constraint(S_winter >> (swimN[i] | swimS[i]))
+
+            #other seasons
+            if(E.is_constraint(S_summer) | E.is_constraint(S_spring) | E.is_constraint(S_autumn)):
+                #population >100k
+                E.add_constraint((population500[i] | population100[i]) >> (swimM[i] | swimS[i] | swimN[i]))
+                E.add_constraint((population500[i] | population100[i]) & ~bestsellerSwimwear[i] >> swimS[i])
+
+                #population <100k
+                E.add_constraint((population50[i] | population20[i] | population0[i]) >> (swimM[i] | swimS[i] | swimN[i]))
+                E.add_constraint((population50[i] | population20[i] | population0[i]) & ~bestsellerSwimwear[i] >> (swimS[i] | swimN[i]))
 
         #Very low supply of swimwear        
         elif (E.is_constraint(IN_swim1)):
-            E.add_constraint(S_autumn | S_spring | S_summer | S_winter)
+            
+            #winter
+            E.add_constraint(S_winter >> (swimN[i] | swimS[i]))
+
+            #other seasons
+            if(E.is_constraint(S_summer) | E.is_constraint(S_spring) | E.is_constraint(S_autumn)):
+                #population >100k
+                E.add_constraint((population500[i] | population100[i]) >> (swimM[i] | swimS[i] | swimN[i]))
+                E.add_constraint((population500[i] | population100[i]) & ~bestsellerSwimwear[i] >> (swimS[i] | swimN[i]))
+
+                #population <100k
+                E.add_constraint((population50[i] | population20[i] | population0[i]) >> (swimS[i] | swimN[i]))
 
             
         
         #No supply
         else:
             E.add_constraint(swimN[i])
-        '''  '''
+        '''  
         Pants
 
         Except the territories, all regions have slighly lower requirements for pants in the 
