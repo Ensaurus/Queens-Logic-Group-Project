@@ -32,7 +32,6 @@ class setup(object):
         self.INjackets = INjackets
         self.INboots = INboots
 
-    
 
 #values that are specific to each store
 class store(object):
@@ -44,13 +43,14 @@ class store(object):
 
     def __hash__(self):
         return hash("(%d) %s %s %s" % (self.population, self.urban, self.region, self.bestSeller))
-
-#Only 1 season is true at a time
-#For inventory, number between 0 and 5.
-#For 4 and 5, we operate normally.
-#For 2 and 3, we reduce by 1 size, minimum small.
-#For 1, we reduce by 2 sizes, smaller stores may not get any.
-#For 0, no product shipped.
+'''
+Only 1 season is true at a time
+For inventory, number between 0 and 5.
+For 4 and 5, we operate normally.
+For 2 and 3, we usually reduce by 1 size, minimum small.
+For 1, we usually reduce by 2 sizes, smaller stores may not get any.
+For 0, no product shipped.
+'''
 
 S_summer = Var('S_summer')
 S_spring = Var('S_spring')
@@ -190,9 +190,6 @@ def exclusiveOr4(a, b, c, d):
 def exclusiveOr5(a, b, c, d, e):
     return (a & ~b & ~c & ~d & ~e) | (~a & b & ~c & ~d & ~e) | (~a & ~b & c & ~d & ~e) | (~a & ~b & ~c & d & ~e) | (~a & ~b & ~c & ~d & e)
 
-def invert(thing):
-    return ~thing
-
 def example_theory(generalConditions, storeOb):
     E = Encoding()
 
@@ -308,6 +305,7 @@ def example_theory(generalConditions, storeOb):
     for i in range(5):
         '''
         Basic Constraints
+		Ensuring that each shipment can only be of one size, and each location can only have one size/region during one season
         '''
         #only one population
         E.add_constraint(exclusiveOr5(population500[i], population100[i], population50[i], population20[i], population0[i]))
@@ -435,11 +433,11 @@ def example_theory(generalConditions, storeOb):
             if(E.is_constraint(S_summer) | E.is_constraint(S_spring) | E.is_constraint(S_autumn)):
                 #population >100k
                 E.add_constraint((population500[i] | population100[i]) >> (swimM[i] | swimS[i] | swimN[i]))
-                E.add_constraint((population500[i] | population100[i]) & ~bestsellerSwimwear[i] >> swimS[i])
+                E.add_constraint(((population500[i] | population100[i]) & ~bestsellerSwimwear[i]) >> (swimS[i] | swimN[i]))
 
                 #population <100k
                 E.add_constraint((population50[i] | population20[i] | population0[i]) >> (swimM[i] | swimS[i] | swimN[i]))
-                E.add_constraint((population50[i] | population20[i] | population0[i]) & ~bestsellerSwimwear[i] >> (swimS[i] | swimN[i]))
+                E.add_constraint(((population50[i] | population20[i] | population0[i]) & ~bestsellerSwimwear[i]) >> (swimS[i] | swimN[i]))
 
         #Very low supply of swimwear        
         elif (E.is_constraint(IN_swim1)):
@@ -451,7 +449,7 @@ def example_theory(generalConditions, storeOb):
             if(E.is_constraint(S_summer) | E.is_constraint(S_spring) | E.is_constraint(S_autumn)):
                 #population >100k
                 E.add_constraint((population500[i] | population100[i]) >> (swimM[i] | swimS[i] | swimN[i]))
-                E.add_constraint((population500[i] | population100[i]) & ~bestsellerSwimwear[i] >> (swimS[i] | swimN[i]))
+                E.add_constraint(((population500[i] | population100[i]) & ~bestsellerSwimwear[i]) >> (swimS[i] | swimN[i]))
 
                 #population <100k
                 E.add_constraint((population50[i] | population20[i] | population0[i]) >> (swimS[i] | swimN[i]))
@@ -651,14 +649,17 @@ def example_theory(generalConditions, storeOb):
                 for j in range(5):
                     if(E.is_constraint(regionTerritory[j])):
                         list_terr.append(j)
+                        #print("appended " + str(j) + ".")
 
                 if(len(list_terr) != 0):
                     for k in range(5):
                         
                         if k in list_terr:
                             E.add_constraint(jacketsS[k])
+                            #print("small " + str(k) + ".")
                         else:
                             E.add_constraint(jacketsN[k])
+                            #print("none " + str(k) + ".")
                 
                 else:
                     for k in range(5):
@@ -734,7 +735,7 @@ def example_theory(generalConditions, storeOb):
                 #population <50k
                 E.add_constraint((population0[i] | population20[i]) >> bootsS[i])
                 
-        
+
         #Very low supply of Boots        
         elif (E.is_constraint(IN_boots1)):
             #population >100k
@@ -752,6 +753,8 @@ def example_theory(generalConditions, storeOb):
 
     return E
 
+
+	#A small function that gets which season the stores are currently operating under
 def getSeason():
 	isInvalid = True
 	userInput = 0
@@ -777,6 +780,8 @@ def getSeason():
 	else:
 		return 'winter'
 
+
+	#A function that loops for each article being shipped and gets its stock value from 0-5 from the user
 def getSetup(product):
 	isInvalid = True
 	userInput = 0
