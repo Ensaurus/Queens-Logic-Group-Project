@@ -581,7 +581,7 @@ def example_theory(generalConditions, storeOb):
                 E.add_constraint(S_spring >> jacketsS[i])
 
                 #population > 100k
-                E.add_constraint(((S_winter | S_autumn) & (population500[i] | population100[i])) >> jacketsL[i])  #done
+                E.add_constraint(((S_winter | S_autumn) & (population500[i] | population100[i])) >> jacketsL[i])
 
                 #population >50k
                 E.add_constraint(((S_winter | S_autumn) & population50[i]) >> (jacketsL[i] | jacketsM[i]))
